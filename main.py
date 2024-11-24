@@ -3,7 +3,8 @@ import logging
 
 #Dev
 import database.db
-
+from handlers.handlers import dp,bot
+import events.secter_santa.secret_santa_handler
 from config import SECRET_SANTA_ENABLED
 
 if SECRET_SANTA_ENABLED:
@@ -20,9 +21,14 @@ if SECRET_SANTA_ENABLED:
 print("All modules successfully loaded.")
 logging.info("All modules successfully loaded.")
 
+
+
 async def main():
     logging.basicConfig(level=logging.INFO)
-    # Метод start_polling(bot) запускает процесс опроса обновлений от Telegram.
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+
