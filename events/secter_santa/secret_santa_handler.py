@@ -4,10 +4,10 @@ from aiogram import types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.filters import Command
 
-from events.secter_santa.secret_santa_logic import participate_in_secret_santa, get_user_secret_santa_status, is_user_leader
 import events.secter_santa.secret_santa_db
-from events.secter_santa.secret_santa_db import is_in_secret_santa,add_to_secret_santa, find_user
+from events.secter_santa.secret_santa_db import is_in_secret_santa, collection_secret_santa
 from handlers.handlers import router,dp
+from database.db import add_user_to_collection, find_user_by_id, collection_users
 
 
 # Список ключевых фраз для активации режима
@@ -22,8 +22,17 @@ async def start_handler(message: types.Message):
         ],
         resize_keyboard=True
     )
-    await message.answer("Привет, Лидер! 👋 Хочешь сыграть в Тайного Санту 🎅 с командой? 🤔🎁", reply_markup=keyboard)
+    add_user_to_collection(message.from_user.id, collection_users)
+    LeaderName = find_user_by_id(message.from_user.id, collection_users)
 
+    if LeaderName:
+        # Если пользователь найден, используем его имя
+        LeaderName = LeaderName.get("real_first_name", "Имя не найдено")
+    else:
+        # Если пользователь не найден, устанавливаем значение "TEST"
+        LeaderName = "лидер"
+    await message.answer(f"Привет, {LeaderName} 👋 Хочешь сыграть в Тайного Санту 🎅 с командой? 🤔🎁",
+                         reply_markup=keyboard)
 
 @dp.message(lambda msg: msg.text in ["Конечно хочу! 🤩", "Я в деле! 👍️"])
 async def secret_santa_info(message: types.Message):
@@ -35,7 +44,7 @@ async def secret_santa_info(message: types.Message):
         await message.answer("Ты уже зарегистрирован в игре! 🙌")
     else:
         # Если пользователя нет, добавляем его в базу
-        add_to_secret_santa(user_id)
+        add_user_to_collection(user_id, collection_secret_santa)
         await message.answer(
             "Поздравляю! 🎉 Ты записан ✅, ожидай 1 декабря 📅, чтобы получить своего счастливчика 🎁✨!",
             reply_markup=ReplyKeyboardRemove()

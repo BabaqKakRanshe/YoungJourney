@@ -11,48 +11,43 @@ collection_users = client.Users.Users
 collection_leaders = client.Users.Leaders
 
 # Функция для поиска пользователя по user_id
-def find_user_by_id(user_id):
+def find_user_by_id(user_id, collection):
     try:
-        # Поиск одного документа в коллекции Users по user_id
-        user = collection_users.find_one({"user_id": user_id})
+        user = collection.find_one({"user_id": user_id})
 
         if user:
-            return user  # Возвращаем найденного пользователя
+            return user
         else:
-            return None  # Если пользователь не найден, возвращаем None
+            return None
     except ConnectionError as e:
-        print(f"Ошибка подключения к базе данных: {e}")
+        print(f"Database connection error: {e}")
         return None
 
 
-# Пример использования
-user_id = 417925165  # Замените на нужный ID пользователя
-user = find_user_by_id(user_id)
-
-if user:
-    print("Пользователь найден:", user)
-else:
-    print("Пользователь с таким ID не найден.")
+from datetime import datetime
 
 
-def add_user(user_id, user_name):
+def add_user_to_collection(user_id, collection, user_name=None):
     try:
-        if collection_users.find_one({"user_id": user_id}):
-            print(f"Пользователь с ID {user_id} уже существует.")
-            return  # Если пользователь уже есть, не добавляем его
+        # Если имя не указано, заменяем на значение по умолчанию
+        if user_name is None:
+            user_name = "Без имени"
 
-        # Добавляем нового пользователя с ID, именем и текущей датой
+        if collection.find_one({"user_id": user_id}):
+            print(f"User with ID {user_id} already exists.")
+            return
+
         user_data = {
             "user_id": user_id,
-            "name": user_name,
+            "real_first_name": "None",
+            "real_last_name": "None",
+            "nick_name": user_name,
             "date_added": datetime.now()  # Дата добавления
         }
 
-        # Вставляем данные в коллекцию
-        collection_users.insert_one(user_data)
-        print(f"Пользователь {user_name} с ID {user_id} успешно добавлен.")
+        collection.insert_one(user_data)
 
     except ConnectionError as e:
-        print(f"Ошибка подключения к базе данных: {e}")
+        print(f"Database connection error: {e}")
         return
 

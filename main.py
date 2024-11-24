@@ -22,7 +22,6 @@ print("All modules successfully loaded.")
 logging.info("All modules successfully loaded.")
 
 
-
 async def main():
     logging.basicConfig(level=logging.INFO)
     await dp.start_polling(bot)
