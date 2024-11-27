@@ -21,23 +21,26 @@ async def send_message(user_id, message):
         print(f"Ошибка при отправке сообщения: {e}")
 
 # Функция для запуска планировщика
-async def start_scheduler():
-    # Создаем объект планировщика с учетом часового пояса
+async def start_scheduler(year: int, month: int, day: int, hour: int, minute: int):
+
     scheduler = AsyncIOScheduler(timezone=timezone)
 
-    # Получаем всех пользователей из коллекции Secret Santa
     all_users = get_all_users(collection_secret_santa)
 
-    # Назначаем каждому пользователю его "Тайного Ангела"
     assign_secret_santa(all_users, collection_secret_santa)
 
-    # Добавляем задачу в планировщик: задача будет выполняться по расписанию (в 18:08 по времени в timezone)
-    scheduler.add_job(send_secret_santa_to_all_users, 'cron', hour=20, minute=44)  # Время в указанном часовом поясе
+    scheduler.add_job(
+        send_secret_santa_to_all_users,
+        'date',
+        run_date=datetime(year, month, day, hour, minute, tzinfo=timezone),
+        misfire_grace_time=3600  # Задача выполнится, если пропустила время выполнения не более чем на 1 час
+    )
 
     scheduler.start()
 
     print("Scheduler is up and running")
     print(f"Current time: {datetime.now(timezone)}")
+    print(f"Task scheduled for {year}-{month:02d}-{day:02d} {hour:02d}:{minute:02d} ({timezone})")
 
 
 def assign_secret_santa(users, collection):
@@ -92,7 +95,7 @@ async def send_secret_santa_to_all_users():
                               "Старайтесь молиться за этого человека, поддерживайте его, а также тайно радуйте маленькими подарками ✝️"
 
                     # Если есть никнейм, добавляем ссылку на профиль
-                    if secret_santa_nick_name:
+                    if secret_santa_nick_name != "Без ника":
                         message += f"\n\nЭто чат с твоим Тайным Ангелом, чтоб не перепутал Яриков: [@{secret_santa_nick_name}](https://t.me/{secret_santa_nick_name})"
 
                 try:
