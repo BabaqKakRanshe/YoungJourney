@@ -58,7 +58,7 @@ def add_user_to_collection(user_id, collection, user_name=None, real_first_name=
         }
 
         collection.insert_one(user_data)
-        print(user_id, user_name, real_first_name, real_first_name)
+        print(user_id, user_name, real_first_name, real_first_name, datetime.now())
     except ConnectionError as e:
         print(f"Database connection error: {e}")
         return
