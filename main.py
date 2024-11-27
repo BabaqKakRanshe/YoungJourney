@@ -25,7 +25,7 @@ logging.info("All modules successfully loaded.")
 
 async def main():
     # Запускаем планировщик в фоновом режиме
-    scheduler_task = asyncio.create_task(start_scheduler(year=2024, month=11, day=27, hour=15, minute=1))
+    scheduler_task = asyncio.create_task(start_scheduler(year=2024, month=11, day=27, hour=16, minute=40))
     # Запускаем polling бота в фоновом режиме
     polling_task = asyncio.create_task(dp.start_polling(bot))  # Создаем задачу для опроса бота
     # Основной цикл для выполнения других действий, если нужно
