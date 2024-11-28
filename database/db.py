@@ -1,9 +1,8 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-from datetime import datetime
 
+from config import  uri
 
-uri = "mongodb+srv://Babaq:3bJjvdRy8zzGivwI@youngjourney.e8m4u.mongodb.net/?retryWrites=true&w=majority&appName=YoungJourney"
 
 client = MongoClient(uri, server_api=ServerApi('1'))
 

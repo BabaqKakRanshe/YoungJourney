@@ -1,4 +1,11 @@
-TOKEN = "7825928811:AAEg-yEHdb30fE80c9rerP8jbS2avvQ9O_o"
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+uri = os.getenv("database_uri")
+TOKEN = os.getenv("TOKEN")
+
+
 
 # Модуль для игры в санту
 SECRET_SANTA_ENABLED = True
