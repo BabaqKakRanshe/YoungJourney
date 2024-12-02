@@ -2,21 +2,20 @@ import asyncio
 import logging
 from dotenv import load_dotenv
 
-#Dev
+# #Dev
 import init_bot
-from database import db
-from config import SECRET_SANTA_ENABLED
-
-#Handlers
-from handlers import *
-#Resources
+# #DataBase
+import database.db
+# # Config
+import config
+# Handlers
+import handlers.admin_handlers, handlers.handlers
+# #Resources
 from resources import *
-#Admin
+# #Admin
 import handlers.admin_handlers
 
-from events.secter_santa.secret_santa_logic import start_scheduler, send_message, add_random_user_to_collection, assign_secret_santa
-from events.secter_santa.secret_santa_db import collection_secret_santa
-if SECRET_SANTA_ENABLED:
+if config.SECRET_SANTA_ENABLED:
     try:
         import events.secter_santa.secret_santa_main
         print("The Secret Santa module has been successfully uploaded.")

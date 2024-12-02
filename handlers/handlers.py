@@ -1,3 +1,5 @@
+import logging
+
 from init_bot import dp, Command, types
 from database.db import add_user_to_collection, collection_users
 
@@ -13,3 +15,5 @@ async def start_command(message: types.Message):
     add_user_to_collection(user_id, collection_users, user_name=user_name, real_first_name=user_first_name)
     await message.answer(greeting)
 
+print("Module handlers successfully loaded.")
+logging.info("Module handlers successfully loaded.")

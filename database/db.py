@@ -1,3 +1,5 @@
+import logging
+
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from datetime import datetime
@@ -76,3 +78,5 @@ def get_user_role(user_id):
         print(f"Error when retrieving user role: {e}")
         return None
 
+print("Module db successfully loaded.")
+logging.info("Module db successfully loaded.")

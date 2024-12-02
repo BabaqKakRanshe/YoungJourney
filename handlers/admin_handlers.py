@@ -60,3 +60,6 @@ async def admin_message_text_handler(message: types.Message, state: FSMContext):
 
     # Сброс состояния
     await state.clear()
+
+print("Module admin_handlers successfully loaded.")
+logging.info("Module admin_handlers successfully loaded.")
