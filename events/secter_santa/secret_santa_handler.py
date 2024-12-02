@@ -8,7 +8,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemo
 
 from events.secter_santa.secret_santa_db import is_in_secret_santa, collection_secret_santa, add_wish_list_to_user, get_wish_list_by_user_id
 from init_bot import dp
-from database.db import add_user_to_collection, get_user_by_id, collection_users
+from database.db import add_user_to_collection, get_user_by_id, collection_users, get_all_users
 
 import resources.text
 
@@ -90,11 +90,11 @@ async def secret_santa_info(message: types.Message):
 @dp.message(lambda msg: msg.text == "Ничего не понятно ☠️")
 async def start_handler(message: types.Message):
     keyboard = ReplyKeyboardRemove()
-    gerbert_chat_link = "https://t.me/GerbertKZ"
+    gerbert_chat_link = "https://t.me/@o0lenenok0_o"
 
     await message.answer(
         "Это очень тяжелый случай 😓, рекомендуем обратиться к профессионалу 👩‍⚕️👨‍⚕️.\n"
-        f"[Написать @GerbertKZ]({gerbert_chat_link})",
+        f"[Написать @@o0lenenok0_o]({gerbert_chat_link})",
         reply_markup=keyboard,  # Передаем экземпляр клавиатуры
         parse_mode="Markdown"
     )
@@ -141,11 +141,35 @@ async def add_wish_list(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     wish_list = message.text
 
+    # Ответ пользователю
     await message.answer(f"О, так это точно то, что вы хотели?\n"
                          f"Ваш списочек: \n{wish_list}\n"
                          f"\nНу что ж, если это всё верно, добавим в ваш безупречный wish list! 🎉")
 
-    add_wish_list_to_user (user_id, wish_list, collection_secret_santa )
+    # Добавление в список желаемых
+    add_wish_list_to_user(user_id, wish_list, collection_secret_santa)
+
+    # Поиск ангела, чье поле secret_santa_id равно user_id
+    all_users = get_all_users(collection_secret_santa)  # Получаем всех пользователей из базы
+    angel = None
+    for user in all_users:
+        if user.get("secret_santa_id") == user_id:
+            angel = user
+            break  # Прерываем цикл, как только находим ангела
+
+    if angel:
+        # Отправка сообщения ангелу
+        try:
+            await message.bot.send_message(
+                chat_id=angel["user_id"],  # Используем ID ангела
+                text=f"Твой подопечный внес изменения в свой wish list и вот что он добавил:\n{wish_list}"
+            )
+        except Exception as e:
+            print(f"Не удалось отправить сообщение ангелу {angel['user_id']}: {e}")
+    else:
+        print(f"Не найден ангел для пользователя с ID {user_id}")
+
+    # Очистка состояния
     await state.clear()
 
 #Логирование запуска
