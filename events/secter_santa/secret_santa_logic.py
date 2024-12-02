@@ -5,7 +5,7 @@ import random
 from datetime import datetime
 from faker import Faker
 
-from handlers.handlers import bot
+from init_bot import dp, bot
 from database.db import get_all_users
 from events.secter_santa.secret_santa_db import collection_secret_santa
 

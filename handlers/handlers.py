@@ -1,12 +1,5 @@
-from aiogram import Bot, Dispatcher, types, Router
-from aiogram.filters import Command
-
+from init_bot import dp, Command, types
 from database.db import add_user_to_collection, collection_users
-from config import TOKEN
-
-bot = Bot(token=(TOKEN))
-dp = Dispatcher()
-router = Router()
 
 @dp.message(Command("start"))
 async def start_command(message: types.Message):

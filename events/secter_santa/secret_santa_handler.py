@@ -9,8 +9,8 @@ from aiogram.filters import Command
 
 import events.secter_santa.secret_santa_db
 from events.secter_santa.secret_santa_db import is_in_secret_santa, collection_secret_santa, add_wish_list_to_user, get_wish_list_by_user_id
-from handlers.handlers import router,dp
-from database.db import add_user_to_collection, find_user_by_id, collection_users
+from init_bot import dp
+from database.db import add_user_to_collection, get_user_by_id, collection_users
 
 
 
@@ -44,7 +44,7 @@ welcome_list_phrases = [
 async def start_handler(message: types.Message):
     welcome_phrase = random.choice(welcome_list_phrases)
 
-    LeaderName = find_user_by_id(message.from_user.id, collection_secret_santa)
+    LeaderName = get_user_by_id(message.from_user.id, collection_secret_santa)
 
     if LeaderName:
         # Если пользователь найден, используем его имя
@@ -83,11 +83,11 @@ async def secret_santa_info(message: types.Message):
 
     else:
         # Если пользователя нет, добавляем его в базу
-        user_document = find_user_by_id(user_id, collection_users)
+        user_document = get_user_by_id(user_id, collection_users)
 
         add_user_to_collection(user_id, collection_secret_santa, user_name=user_nickname, real_first_name=user_first_name)
         await message.answer(
-            "Поздравляю! 🎉 Ты записан ✅, ожидай 1 декабря 📅, чтобы получить своего счастливчика 🎁✨!\n"
+            "Поздравляю! 🎉 Ты записан ✅, ожидай 2 декабря в какое-то время 📅, чтобы получить своего счастливчика 🎁✨!\n"
             "\nНе забудь пополнить свой wish list!💅🏻💅🏻💅🏻",
             reply_markup=ReplyKeyboardRemove()
         )

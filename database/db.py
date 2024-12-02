@@ -1,5 +1,6 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from datetime import datetime
 
 from config import  uri
 
@@ -10,7 +11,7 @@ collection_users = client.Users.Users
 collection_leaders = client.Users.Leaders
 
 # Функция для поиска пользователя по user_id
-def find_user_by_id(user_id, collection):
+def get_user_by_id(user_id, collection):
     try:
         user = collection.find_one({"user_id": user_id})
 
@@ -18,12 +19,10 @@ def find_user_by_id(user_id, collection):
             return user
         else:
             return None
+
     except ConnectionError as e:
         print(f"Database connection error: {e}")
         return None
-
-
-from datetime import datetime
 
 def get_all_users(collection):
     try:
@@ -61,4 +60,19 @@ def add_user_to_collection(user_id, collection, user_name=None, real_first_name=
     except ConnectionError as e:
         print(f"Database connection error: {e}")
         return
+
+
+def get_user_role(user_id):
+
+    try:
+        user = collection_users.find_one({"user_id": user_id}, {"_id": 0, "user_role": 1})
+
+        if user and "user_role" in user:
+            return user["user_role"]
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Error when retrieving user role: {e}")
+        return None
 

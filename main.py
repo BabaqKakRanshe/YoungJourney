@@ -3,9 +3,14 @@ import logging
 from dotenv import load_dotenv
 
 #Dev
-from database.db import get_all_users
-from handlers.handlers import dp,bot
+import init_bot
+from database import db
 from config import SECRET_SANTA_ENABLED
+
+#Handlers
+from handlers import *
+#Admin
+import handlers.admin_handlers
 
 from events.secter_santa.secret_santa_logic import start_scheduler, send_message, add_random_user_to_collection, assign_secret_santa
 from events.secter_santa.secret_santa_db import collection_secret_santa
@@ -28,10 +33,11 @@ load_dotenv()
 
 async def main():
     # Запускаем планировщик в фоновом режиме
-    scheduler_task = asyncio.create_task(start_scheduler(year=2024, month=11, day=28, hour=14, minute=20))
+    # scheduler_task = asyncio.create_task(start_scheduler(year=2024, month=11, day=1, hour=19, minute=1))
     # Запускаем polling бота в фоновом режиме
-    polling_task = asyncio.create_task(dp.start_polling(bot))  # Создаем задачу для опроса бота
+    polling_task = asyncio.create_task(init_bot.dp.start_polling(init_bot.bot))  # Создаем задачу для опроса бота
     # Основной цикл для выполнения других действий, если нужно
+
     while True:
         await asyncio.sleep(1)  # Ожидание для параллельного выполнения других задач
     print("4")
