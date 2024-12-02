@@ -1,5 +1,6 @@
 import logging
 import random
+import re
 
 from aiogram import types
 from aiogram.fsm.context import FSMContext
@@ -13,7 +14,7 @@ from database.db import add_user_to_collection, get_user_by_id, collection_users
 import resources.text
 
 # Обработчик команды Санта
-@dp.message(lambda msg: any(phrase.lower() in msg.text.lower() for phrase in resources.text.SANTA_TRIGGER_PHRASES))
+@dp.message(lambda msg: any(re.search(r'\b' + re.escape(phrase.lower()) + r'\b', msg.text.lower()) for phrase in resources.text.SANTA_TRIGGER_PHRASES))
 async def start_handler(message: types.Message):
     welcome_phrase = random.choice(resources.text.WELCOME_LIST_PHRASES)
 
@@ -24,8 +25,8 @@ async def start_handler(message: types.Message):
         LeaderName = LeaderName.get("real_first_name", "Имя не найдено")
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
-                [KeyboardButton(text="Я уже записан? 😬"), KeyboardButton(text="А что это? 🤔"),
-                 KeyboardButton(text="Мой wish list 💅🏻")]
+                [KeyboardButton(text="Я уже записан? 😬"), KeyboardButton(text="А что это? 🤔")],
+                [KeyboardButton(text="Мой wish list 💅🏻"), KeyboardButton(text="Связь с Ангелом 📞")]
             ],
             resize_keyboard=True
         )
@@ -171,6 +172,64 @@ async def add_wish_list(message: types.Message, state: FSMContext):
 
     # Очистка состояния
     await state.clear()
+
+class AngelMessageStates(StatesGroup):
+    waiting_for_angel_message = State()
+
+@dp.message(lambda msg: msg.text == "Связь с Ангелом 📞")
+async def write_to_angel_handler(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+
+    # Получаем всех пользователей и ищем ангела
+    all_users = get_all_users(collection_secret_santa)
+    angel = None
+    for user in all_users:
+        if user.get("secret_santa_id") == user_id:
+            angel = user
+            break  # Прерываем цикл, как только нашли ангела
+
+    if angel:
+        # Если ангел найден, даем пользователю возможность написать сообщение
+        await message.answer("Теперь вы можете написать своему Ангелу ✨. Введите ваше сообщение.")
+        await state.set_state(AngelMessageStates.waiting_for_angel_message)  # Состояние для ожидания сообщения
+    else:
+        await message.answer("Мы не нашли вашего ангела. Пожалуйста, обратитесь к администратору.")
+
+@dp.message(AngelMessageStates.waiting_for_angel_message)  # Здесь указываем состояние в виде строки
+async def send_message_to_angel(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    text = message.text.strip()
+
+    # Получаем ангела, чей secret_santa_id равен нашему user_id
+    all_users = get_all_users(collection_secret_santa)
+    angel = None
+    for user in all_users:
+        if user.get("secret_santa_id") == user_id:
+            angel = user
+            break
+
+    if angel:
+        # Выбираем случайную фразу
+        random_message = random.choice(resources.text.MESSAGE_TO_ANGEL).format(text=text)
+        try:
+            # Отправляем сообщение ангелу
+            await message.bot.send_message(
+                chat_id=angel["user_id"],  # ID ангела
+                text=random_message
+            )
+            await message.answer("Ваше сообщение успешно отправлено вашему ангелу! ✨")
+        except Exception as e:
+            await message.answer(f"Ошибка при отправке сообщения ангелу: {e}")
+    else:
+        await message.answer("Не удалось найти вашего ангела, пожалуйста, попробуйте позже.")
+
+    # Очистка состояния
+    await state.clear()
+
+
+
+
+
 
 #Логирование запуска
 print("Module secret_santa_handler successfully loaded.")

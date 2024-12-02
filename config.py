@@ -1,4 +1,6 @@
 import os
+import logging
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -9,3 +11,6 @@ TOKEN = os.getenv("TOKEN")
 
 # Модуль для игры в санту
 SECRET_SANTA_ENABLED = True
+
+print("Module config successfully loaded.")
+logging.info("Module config successfully loaded.")
