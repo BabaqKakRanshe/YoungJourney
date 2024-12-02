@@ -9,6 +9,8 @@ from config import SECRET_SANTA_ENABLED
 
 #Handlers
 from handlers import *
+#Resources
+from resources import *
 #Admin
 import handlers.admin_handlers
 

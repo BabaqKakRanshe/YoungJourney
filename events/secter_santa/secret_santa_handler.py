@@ -5,44 +5,17 @@ from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
-from aiogram.filters import Command
 
-import events.secter_santa.secret_santa_db
 from events.secter_santa.secret_santa_db import is_in_secret_santa, collection_secret_santa, add_wish_list_to_user, get_wish_list_by_user_id
 from init_bot import dp
 from database.db import add_user_to_collection, get_user_by_id, collection_users
 
-
-
-# Список ключевых фраз для активации режима
-santa_trigger_phrases = ["Тайный ангел", "Ангел", "😇", "👼🏻"]
-
-wish_list_phrases = [
-    "Теперь пиши, что хочешь получить, мой сладкий пирожочек 💋✨",
-    "Жду твой список желаний, мой сахарный зайчик 🍭💕",
-    "Расскажи, что ты хочешь, мой маленький подарочек 🎉💌",
-    "Жду твои мечты, мой кролик 🐰💫",
-    "Ну-ка, пиши, что тебя порадует, моя конфетка 🍬💎",
-    "Открывай тайны своих желаний, моя клубничка 🍓✨",
-    "Теперь твой ход, мой тигренок, говори, что хочешь 🐾🎁",
-    "Давай, мой кексик, расскажи, что тебя сделает счастливым 🧁❤️",
-    "Жду твой волшебный список, мой обаяшка 🪄💝"
-]
-welcome_list_phrases = [
-    "Уже строишь планы, как скрыть подарки? 🎁",
-    "Кто ж не жаждет сюрпризов, правда? 😏",
-    "Все уже в предвкушении... или ты ещё не выбрал, что хочешь? 🎅",
-    "Прямо сейчас начинаешь мечтать о своём подарке? 😜",
-    "Когда уже можно начать проверку подарков? 🕵️‍♂️",
-    "Мыслишь, что получишь? Или это останется сюрпризом? 🤫",
-    "А ты уже решил, что подаришь? Или будешь надеяться на чудо? 🎁",
-    "Надеешься, что в этот раз будет не только подарки, но и магия? ✨",
-]
+import resources.text
 
 # Обработчик команды Санта
-@dp.message(lambda msg: any(phrase.lower() in msg.text.lower() for phrase in santa_trigger_phrases))
+@dp.message(lambda msg: any(phrase.lower() in msg.text.lower() for phrase in resources.text.SANTA_TRIGGER_PHRASES))
 async def start_handler(message: types.Message):
-    welcome_phrase = random.choice(welcome_list_phrases)
+    welcome_phrase = random.choice(resources.text.WELCOME_LIST_PHRASES)
 
     LeaderName = get_user_by_id(message.from_user.id, collection_secret_santa)
 
@@ -148,7 +121,7 @@ class WishListStates(StatesGroup):
 @dp.message(lambda message: message.text == "Мой wish list 💅🏻")
 async def wish_list_start(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
-    random_phrase = random.choice(wish_list_phrases)
+    random_phrase = random.choice(resources.text.WISH_LIST_PHRASES)
 
     wish_list = get_wish_list_by_user_id (user_id, collection_secret_santa)
 
